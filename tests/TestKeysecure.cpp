@@ -1,7 +1,5 @@
 #include <gtest/gtest.h>
-#include <cstdio>
 #include <fstream>
-#include <iostream>
 #include "keysecure.hpp"
 
 TEST(TestKeysecure, check_amount_of_entries) {
