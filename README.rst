@@ -9,22 +9,22 @@ Build dependencies
 - g++
 - gtest (optional for testing)
 
-   Install dependencies:
-   ---------------------
+Install dependencies:
+---------------------
       **Arch linux:**
       `sudo pacman -S openssl make g++ gtest`
 
-   Build steps:
-   ------------
+Build steps:
+------------
       **Source:**
          `make`
       **Tests:**
-         `cd tests; make && make run`
+         `cd tests/; make && make run`
 
 Docker image:
 -------------
-   `docker pull xaar/keysecure`
-   `docker container run -it xaar/keysecure`
+  | `docker pull xaar/keysecure`
+  | `docker container run -it xaar/keysecure`
 
 TODO
 ####
