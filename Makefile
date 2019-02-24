@@ -15,5 +15,5 @@ keysecure.o: src/keysecure.cpp src/keysecure.hpp
 clean:
 	-rm -rf ${KEY_LIB} ${OBJ} a.out
 
-.PHONY = all clean run
+.PHONY = all clean
 
