@@ -1,6 +1,6 @@
 Keysecure (work in progress)
 ############################
-Store your passwords in safe, fast and convenient way.
+Store your passwords in a safe, fast and convenient way.
 
 Build dependencies
 ##################
@@ -28,7 +28,7 @@ Docker image:
 
 TODO
 ####
-- Implement encryption of database
+- Implement database encryption
 - Delete/Search functionality
 - Refactoring
 
