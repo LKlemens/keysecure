@@ -24,5 +24,4 @@ run:
 clean:
 	-rm -rf ${EXECUTABLE} keysecure.o libkeysecure.a TestKeysecure.o a.out
 
-.PHONY = all clean run
-
+.PHONY: all clean run
