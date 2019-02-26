@@ -1,22 +1,22 @@
-CC = g++
-FLAGS =  -Wall -Wextra  -std=c++11 -c
+CXX = g++
+CXXFLAGS =  -Wall -Wextra  -std=c++11 -c
 LINKING_FLAGS = -L. -lkeysecure -lcrypto -lgtest -lpthread
 EXECUTABLE = test
 
 all: ${EXECUTABLE}
 
 ${EXECUTABLE}: TestKeysecure.o libkeysecure.a
-	${CC} TestKeysecure.o ${LINKING_FLAGS} -o ${EXECUTABLE}
+	${CXX} TestKeysecure.o ${LINKING_FLAGS} -o ${EXECUTABLE}
 
 keysecure.o: ../src/keysecure.cpp ../src/keysecure.hpp
-	${CC} ${FLAGS} -DTEST $<
+	${CXX} ${CXXFLAGS} -DTEST $<
 
 libkeysecure.a: keysecure.o
 	ar crs $@ $^
 	ranlib $@
 
 TestKeysecure.o: TestKeysecure.cpp
-	${CC} -I../src/ ${FLAGS} $<
+	${CXX} -I../src/ ${CXXFLAGS} $<
 
 run:
 	./${EXECUTABLE}
