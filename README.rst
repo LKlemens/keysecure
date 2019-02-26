@@ -1,6 +1,6 @@
 Keysecure (work in progress)
 ############################
-Store your passwords in a safe, fast and convenient way.
+Store your data in a safe, fast and convenient way.
 
 Build dependencies
 ##################
