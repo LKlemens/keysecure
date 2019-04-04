@@ -14,14 +14,16 @@ namespace kfp {
  *
  *######################################################################*/
 
-Keysecure::Keysecure(std::string key_database, std::string config)
+Keysecure::Keysecure(std::string key_database, std::string config,
+                     std::string password)
     : key_database(key_database), config(config), keys(get_keys()) {
   std::ifstream file(key_database);
 
   if (!file.good())
-    create_db();
+    create_db(password);
   else
-    match_password();
+    match_password(password);
+  file.close();
 }
 
 std::vector<Entry> Keysecure::read_from_db() const {
@@ -34,8 +36,6 @@ std::vector<Entry> Keysecure::read_from_db() const {
   for (std::string line; std::getline(file, line);) {
     Entry entry;
     auto fields = read_netstring_line(line);
-    for (auto f : fields) {
-    }
     for (auto field : fields) {
       auto key_value = cut_line(field, "=");
       entry[key_value[0]] = key_value[1];
@@ -64,14 +64,17 @@ void Keysecure::write_to_db(Entry entry) {
 
 void Keysecure::check_entry(Entry entry) throw() {
   for (auto m : entry) {
-    if (std::find(keys.begin(), keys.end(), m.first) == keys.end())
+    if (std::find(keys.begin(), keys.end(), m.first) == keys.end()) {
       throw InvalidEntry();
+    }
   }
 }
 
-void Keysecure::match_password() const {
-  std::string password = kfp::get_password();
+void Keysecure::match_password(std::string password) const {
   std::string hash_from_file = kfp::get_hash_from_file(key_database);
+  if (password.empty()) {
+    password = kfp::get_password();
+  }
   std::string pass_hash = kfp::sha256(password);
   if (pass_hash != hash_from_file) {
     std::cerr << "ERROR: Wrong password!" << std::endl;
@@ -79,9 +82,11 @@ void Keysecure::match_password() const {
   }
 }
 
-void Keysecure::create_db() const {
+void Keysecure::create_db(std::string password) const {
   std::ofstream file(key_database);
-  std::string password = get_password();
+  if (password.empty()) {
+    password = kfp::get_password();
+  }
   std::string pass_hash = kfp::sha256(password);
   file << pass_hash << std::endl;
   file.close();

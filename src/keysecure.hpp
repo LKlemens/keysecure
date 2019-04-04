@@ -12,19 +12,20 @@ using StringSeq = std::vector<std::string>;
 using Entry = std::map<std::string, std::string>;
 
 class Keysecure {
-  const std::string key_database;
-  const std::string config;
-  const StringSeq keys;
-
  public:
-  Keysecure(std::string key_database, std::string config);
+  Keysecure(std::string key_database, std::string config,
+            std::string password = nullptr);
   std::vector<Entry> read_from_db() const;
   void write_to_db(Entry entry);
 
  private:
+  const std::string key_database;
+  const std::string config;
+  const StringSeq keys;
+
   void check_entry(Entry values) throw();
-  void match_password() const;
-  void create_db() const;
+  void match_password(std::string password) const;
+  void create_db(std::string password) const;
   Entry read_config() const;
   const StringSeq get_keys() const;
 };
