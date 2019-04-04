@@ -8,6 +8,7 @@ Build dependencies
 - make
 - g++
 - gtest (optional for testing)
+- pybind11_
 
 Install dependencies:
 ---------------------
@@ -36,3 +37,5 @@ TODO
 License
 #######
 - MIT
+
+.. _pybind11: https://github.com/pybind/pybind11
