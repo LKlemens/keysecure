@@ -1,14 +1,12 @@
 CXX := g++
-CXXFLAGS :=  -O3 -Wall -Wextra -std=c++11
-OBJ := keysecure.o
-KEY_LIB := libkeysecure.a
+CXXFLAGS := -O3 -Wall -Wextra -std=c++11
 PY_LIBS != python3 -m pybind11  --includes
 
-all: ${OBJ} ${KEY_LIB} keysecure.cpython-37m-x86_64-linux-gnu.so
+all: keysecure.o libkeysecure.a keysecure.cpython-37m-x86_64-linux-gnu.so
 
-libkeysecure.a: ${OBJ}
-	ar crs ${KEY_LIB} ${OBJ}
-	ranlib ${KEY_LIB}
+libkeysecure.a: keysecure.o
+	ar crs $@ $^
+	ranlib $@
 
 keysecure.o: src/keysecure.cpp src/keysecure.hpp
 	${CXX} ${CXXFLAGS} -c $<
@@ -18,6 +16,6 @@ keysecure.cpython-37m-x86_64-linux-gnu.so: src/python_module.cpp src/keysecure.c
 
 
 clean:
-	-rm -rf ${KEY_LIB} ${OBJ} keysecure.cpython-37m-x86_64-linux-gnu.so a.out
+	-rm -rf libkeysecure.a keysecure.o keysecure.cpython-37m-x86_64-linux-gnu.so a.out
 
 .PHONY: all clean
