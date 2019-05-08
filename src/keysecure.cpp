@@ -26,7 +26,7 @@ Keysecure::Keysecure(std::string key_database, std::string config,
   file.close();
 }
 
-std::vector<Entry> Keysecure::read_from_db() const {
+std::vector<Entry> Keysecure::get_db() const {
   std::ifstream file(key_database);
   file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
@@ -46,12 +46,18 @@ std::vector<Entry> Keysecure::read_from_db() const {
   return all_entries;
 }
 
-void Keysecure::write_to_db(Entry entry) {
+void Keysecure::save_entry(Entry entry, std::string title) {
   check_entry(entry);
   std::ofstream file(key_database, std::ios::app);
   if (!file.is_open()) {
     std::cerr << "Error opend file" << std::endl;
     exit(1);
+  }
+  if (title != "") {
+    int title_len = entry["title"].length();
+    char c = ' ';
+    file << entry["title"] << std::string(128 - title_len, c);
+    entry.erase("title");
   }
   std::string entrystr;
   for (auto m : entry) {
@@ -62,6 +68,21 @@ void Keysecure::write_to_db(Entry entry) {
   file.close();
 }
 
+void Keysecure::delete_entry(std::string value) {
+  std::ifstream fin(key_database);
+  std::ofstream fout("temp_file");
+
+  for (std::string line; std::getline(fin, line);) {
+    if (line.find(value) == std::string::npos) {
+      fout << line << std::endl;
+    }
+  }
+  fin.close();
+  fout.close();
+  std::remove(key_database.c_str());
+  std::rename("temp_file", key_database.c_str());
+}
+
 void Keysecure::check_entry(Entry entry) throw() {
   for (auto m : entry) {
     if (std::find(keys.begin(), keys.end(), m.first) == keys.end()) {
@@ -70,7 +91,7 @@ void Keysecure::check_entry(Entry entry) throw() {
   }
 }
 
-void Keysecure::match_password(std::string password) const {
+void Keysecure::match_password(std::string password) const throw() {
   std::string hash_from_file = kfp::get_hash_from_file(key_database);
   if (password.empty()) {
     password = kfp::get_password();
@@ -78,7 +99,7 @@ void Keysecure::match_password(std::string password) const {
   std::string pass_hash = kfp::sha256(password);
   if (pass_hash != hash_from_file) {
     std::cerr << "ERROR: Wrong password!" << std::endl;
-    exit(1);
+    throw WrongPassword();
   }
 }
 
