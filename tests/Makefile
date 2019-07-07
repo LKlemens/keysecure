@@ -1,12 +1,12 @@
 CXX = g++
-CXXFLAGS =  -Wall -Wextra  -std=c++11 -c
-LINKING_FLAGS = -L. -lkeysecure -lcrypto -lgtest -lpthread
+CXXFLAGS =  -g -Wall -Wextra  -std=c++11 -c -I/usr/include/botan-2
+LINKING_FLAGS = -L. -lkeysecure -lgtest -lpthread -lbotan-2 -I/usr/include/botan-2
 EXECUTABLE = test
 
 all: ${EXECUTABLE}
 
 ${EXECUTABLE}: TestKeysecure.o libkeysecure.a
-	${CXX} TestKeysecure.o ${LINKING_FLAGS} -o ${EXECUTABLE}
+	${CXX} TestKeysecure.o -g ${LINKING_FLAGS} -o ${EXECUTABLE}
 
 keysecure.o: ../src/keysecure.cpp ../src/keysecure.hpp
 	${CXX} ${CXXFLAGS} -DTEST $<

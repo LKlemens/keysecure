@@ -4,13 +4,13 @@
 #include "keysecure.hpp"
 
 TEST(TestKeysecure, check_amount_of_entries) {
-  kfp::Keysecure key("test_db.kfp", "conf", "");
+  kfp::Keysecure key("test_db.kfp", "conf", "123456");
   std::vector<kfp::Entry> all_entries = key.get_db();
   ASSERT_EQ(2, all_entries.size());
 }
 
 TEST(TestKeysecure, check_entry_values) {
-  kfp::Keysecure key("test_db.kfp", "conf", "");
+  kfp::Keysecure key("test_db.kfp", "conf", "123456");
   std::vector<kfp::Entry> all_entries = key.get_db();
   kfp::Entry entry = all_entries[0];
   ASSERT_EQ(entry["notes"], "gmail is from google");
@@ -31,21 +31,22 @@ TEST(TestKeysecure, check_entry_values) {
 
 TEST(TestKeysecure, create_new_database) {
   std::string db_name = "newdatabase.kfp";
-  kfp::Keysecure key(db_name, "conf", "");
+  std::remove(db_name.c_str());
+  kfp::Keysecure key(db_name, "conf", "123456");
   std::ifstream file(db_name);
   ASSERT_EQ(file.good(), true);
 
   int num_of_line = 0;
   std::string line;
   while (std::getline(file, line)) ++num_of_line;
-  ASSERT_EQ(num_of_line, 1);
-
+  ASSERT_EQ(num_of_line, 0);
   std::remove(db_name.c_str());
 }
 
 TEST(TestKeysecure, add_new_entry) {
   std::string db_name = "newdatabase_add.kfp";
-  kfp::Keysecure key(db_name, "conf", "");
+  std::remove(db_name.c_str());
+  kfp::Keysecure key(db_name, "conf", "123456");
 
   kfp::Entry entry;
   entry["title"] = "polo";
@@ -54,7 +55,7 @@ TEST(TestKeysecure, add_new_entry) {
   entry["path"] = "of life";
   entry["password"] = "qwerty;;;,,,, sdf";
   entry["notes"] = "netflix is awesome";
-  key.save_entry(entry);
+  key.add_entry(entry);
 
   std::vector<kfp::Entry> all_entries = key.get_db();
   kfp::Entry entry_from_file = all_entries[0];
@@ -66,13 +67,14 @@ TEST(TestKeysecure, add_new_entry) {
   ASSERT_EQ(entry["notes"], "netflix is awesome");
 
   // check whether it open db properly
-  kfp::Keysecure key_again(db_name, "conf", "");
+  kfp::Keysecure key_again(db_name, "conf", "123456");
   std::remove(db_name.c_str());
 }
 
 TEST(TestKeysecure, delete_entry) {
-  std::string db_name = "newdatabase_add.kfp";
-  kfp::Keysecure key(db_name, "conf", "");
+  std::string db_name = "newdatabase_delete.kfp";
+  std::remove(db_name.c_str());
+  kfp::Keysecure key(db_name, "conf", "123456");
 
   kfp::Entry entry;
   entry["title"] = "polo";
@@ -81,14 +83,14 @@ TEST(TestKeysecure, delete_entry) {
   entry["path"] = "of life";
   entry["password"] = "qwerty;;;,,,, sdf";
   entry["notes"] = "netflix is awesome";
-  key.save_entry(entry);
+  key.add_entry(entry);
   entry["title"] = "hoho";
   entry["username"] = "bob@gmail.com";
   entry["url"] = "netflix.com";
   entry["path"] = "of life";
   entry["password"] = "qwerty;;;,,,, sdf";
   entry["notes"] = "netflix is awesome";
-  key.save_entry(entry);
+  key.add_entry(entry);
 
   std::vector<kfp::Entry> all_entries = key.get_db();
   ASSERT_EQ(all_entries.size(), 2);
@@ -98,10 +100,13 @@ TEST(TestKeysecure, delete_entry) {
   all_entries = key.get_db();
   ASSERT_EQ(all_entries.size(), 1);
 
+  // check whether it open db properly
+  kfp::Keysecure key_again(db_name, "conf", "123456");
   std::remove(db_name.c_str());
 }
 
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
+  // ::testing::GTEST_FLAG(filter) = "*entry*";
   return RUN_ALL_TESTS();
 }
