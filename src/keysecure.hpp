@@ -19,21 +19,21 @@ using Entry =
 class Keysecure {
  public:
   Keysecure(std::string key_database, std::string config, const char *password);
+  std::vector<Entry> to_vector_of_entries(
+      const Botan::secure_vector<uint8_t> sec_vec);
   std::vector<Entry> get_db();
   void add_entry(Entry entry);
   void delete_entry(std::string value);
-  void get_entry(Entry entry);
-  int decrypt();
-  int encrypt();
+  std::vector<Entry> decrypt();
+  void encrypt();
   std::vector<Entry> all_entries;
-  void compress_db();
+  std::string compress_db();
 
  private:
   const std::string key_database;
   const std::string config;
   const StringSeq keys;
   const std::string password;
-  std::string plain_data;
 
   void check_entry(Entry values) throw();
   void create_db() const;

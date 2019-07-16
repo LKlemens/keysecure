@@ -33,18 +33,18 @@ Keysecure::Keysecure(std::string key_database, std::string config,
   if (!file.good()) {
     create_db();
   } else {
-    decrypt();
-    all_entries = get_db();
-    compress_db();
+    all_entries = decrypt();
   }
 
   file.close();
 }
 
-std::vector<Entry> Keysecure::get_db() {
-  auto passwrods_lines = cut_line(plain_data, "\n");
+std::vector<Entry> Keysecure::to_vector_of_entries(
+    const Botan::secure_vector<uint8_t> sec_vec) {
+  std::string s(sec_vec.begin(), sec_vec.end());
+  auto passwrods_lines = cut_line(s, "\n");
   std::cout << "pass in getdb" << std::endl;
-  std::cout << plain_data << std::endl;
+  std::cout << s << std::endl;
   std::cout << "pass in getdb" << std::endl;
   std::vector<Entry> entries;
   for (auto line : passwrods_lines) {
@@ -64,7 +64,9 @@ std::vector<Entry> Keysecure::get_db() {
   return entries;
 }
 
-void Keysecure::compress_db() {
+std::vector<Entry> Keysecure::get_db() { return all_entries; }
+
+std::string Keysecure::compress_db() {
   std::string pass_str;
   std::string entrystr;
   for (auto entires : all_entries) {
@@ -76,28 +78,11 @@ void Keysecure::compress_db() {
       pass_str += '\n';
     }
   }
-  std::cout << "compress db before" << std::endl;
-  std::cout << plain_data << std::endl;
-  plain_data = pass_str;
-  std::cout << "compress db after" << std::endl;
-  std::cout << plain_data << std::endl;
+  return pass_str;
 }
 
 void Keysecure::add_entry(Entry entry) {
-  std::cout << "password in add entry " << password << std::endl;
-  std::string pass_str, entrystr;
-  for (auto m : entry) {
-    entrystr = m.first + "=" + m.second;
-    pass_str += std::to_string(entrystr.length()) + ":" + entrystr + ",";
-    // std::cout << std::to_string(entrystr.length()) + ":" + entrystr + ","
-    //           << std::endl;
-  }
-  pass_str += '\n';
-
-  plain_data += pass_str;
-  std::cout << "getdb size before " << all_entries.size() << std::endl;
-  all_entries = get_db();
-  std::cout << "getdb size after " << all_entries.size() << std::endl;
+  all_entries.push_back(entry);
   encrypt();
 }
 
@@ -114,7 +99,6 @@ void Keysecure::delete_entry(std::string value) {
   }
   std::cout << "size before after" << std::endl;
   std::cout << all_entries.size() << std::endl;
-  compress_db();
   encrypt();
 }
 
@@ -249,7 +233,7 @@ const Botan::secure_vector<uint8_t> encrypt_decrypt(
   return result;
 }
 
-int Keysecure::encrypt() {
+void Keysecure::encrypt() {
   /* Open and truncate file to zero length or create ciphertext file for writing
    */
   std::cout << "encrypt fun pass: " << password << std::endl;
@@ -263,15 +247,17 @@ int Keysecure::encrypt() {
   //     "24:notes=netflix is awesome,26:password=qwerty;;;,,,, "
   //     "sdf,5:path=,17:title=netflix.com,11:url=ne"
   //     "tflix,22:username=bob@gmail.com,";
-  const std::vector<uint8_t> input(plain_data.begin(), plain_data.end());
+
+  std::string netstring_data = compress_db();
+  const std::vector<uint8_t> input(netstring_data.begin(),
+                                   netstring_data.end());
   std::cout << std::endl;
   auto out = encrypt_decrypt(input, password, Botan::Cipher_Dir::ENCRYPTION);
   std::ofstream outFile(key_database);
   for (auto x : out) outFile << x;
-  return 0;
 }
 
-int Keysecure::decrypt() {
+std::vector<Entry> Keysecure::decrypt() {
   /* Open the encrypted file for reading in binary ("rb" mode) */
   std::ifstream t(key_database);
   std::string str((std::istreambuf_iterator<char>(t)),
@@ -281,13 +267,10 @@ int Keysecure::decrypt() {
   /* Decrypt the given file */
 
   const std::vector<uint8_t> input(str.begin(), str.end());
-  auto p = encrypt_decrypt(input, password, Botan::Cipher_Dir::DECRYPTION);
-  std::string s(p.begin(), p.end());
-  plain_data = s;
-  std::cout << "after decrypt" << std::endl;
-  std::cout << plain_data << std::endl;
+  auto data_u8 =
+      encrypt_decrypt(input, password, Botan::Cipher_Dir::DECRYPTION);
 
-  return 1;
+  return to_vector_of_entries(data_u8);
 }
 
 }  // namespace kfp
