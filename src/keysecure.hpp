@@ -22,7 +22,7 @@ class Keysecure {
   std::vector<Entry> to_vector_of_entries(
       const Botan::secure_vector<uint8_t> sec_vec);
   std::vector<Entry> get_db();
-  void add_entry(Entry entry);
+  void add_entry(Entry entry) throw();
   void delete_entry(std::string value);
   std::vector<Entry> decrypt();
   void encrypt();

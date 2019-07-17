@@ -81,7 +81,8 @@ std::string Keysecure::compress_db() {
   return pass_str;
 }
 
-void Keysecure::add_entry(Entry entry) {
+void Keysecure::add_entry(Entry entry) throw() {
+  check_entry(entry);
   all_entries.push_back(entry);
   encrypt();
 }
