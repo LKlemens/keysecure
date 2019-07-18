@@ -87,20 +87,21 @@ void Keysecure::add_entry(Entry entry) throw() {
   encrypt();
 }
 
-void Keysecure::delete_entry(std::string value) {
+int Keysecure::delete_entry(Entry dentry) {
   std::cout << "size before entry" << std::endl;
   std::cout << all_entries.size() << std::endl;
-  for (auto it = all_entries.begin(); it != all_entries.end(); ++it) {
-    std::cout << "in for value " << (*it)["title"] << std::endl;
-    if ((*it)["title"] == value) {
-      std::cout << "erase!!###########$$$$$$$$$$$$$ " << value << std::endl;
-      all_entries.erase(it);
-      break;
+  int code = 1;
+  for (std::size_t i = 0; i <= all_entries.size(); ++i) {
+    if (all_entries[i] == dentry) {
+      std::cout << "in for value " << all_entries[i]["title"] << std::endl;
+      all_entries.erase(all_entries.begin() + i);
+      code = 0;
     }
   }
   std::cout << "size before after" << std::endl;
   std::cout << all_entries.size() << std::endl;
   encrypt();
+  return code;
 }
 
 void Keysecure::check_entry(Entry entry) throw() {
@@ -188,8 +189,6 @@ StringSeq read_netstring_line(std::string line, std::string delimiter) {
     char len_of_comma = 1;
     line.erase(0, len_of_netstring + len_of_comma);
   }
-  // if (line != "") entry_vec.push_back(line);
-
   return entry_vec;
 }
 
@@ -239,15 +238,6 @@ void Keysecure::encrypt() {
    */
   std::cout << "encrypt fun pass: " << password << std::endl;
   std::cout << "encrypt file ???????????????????????????????" << std::endl;
-
-  /* Encrypt the given file */
-  // plain_data =
-  //     "26:notes=gmail is from google,19:password=123456 "
-  //     "PPP,5:path=,11:title=gmail,13:url=gmail.com,22:username=bob@gmail.com,"
-  //     "\n"
-  //     "24:notes=netflix is awesome,26:password=qwerty;;;,,,, "
-  //     "sdf,5:path=,17:title=netflix.com,11:url=ne"
-  //     "tflix,22:username=bob@gmail.com,";
 
   std::string netstring_data = compress_db();
   const std::vector<uint8_t> input(netstring_data.begin(),

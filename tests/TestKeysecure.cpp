@@ -76,26 +76,27 @@ TEST(TestKeysecure, delete_entry) {
   std::remove(db_name.c_str());
   kfp::Keysecure key(db_name, "conf", "123456");
 
-  kfp::Entry entry;
-  entry["title"] = "polo";
-  entry["username"] = "bob@gmail.com";
-  entry["url"] = "netflix.com";
-  entry["path"] = "of life";
-  entry["password"] = "qwerty;;;,,,, sdf";
-  entry["notes"] = "netflix is awesome";
-  key.add_entry(entry);
-  entry["title"] = "hoho";
-  entry["username"] = "bob@gmail.com";
-  entry["url"] = "netflix.com";
-  entry["path"] = "of life";
-  entry["password"] = "qwerty;;;,,,, sdf";
-  entry["notes"] = "netflix is awesome";
-  key.add_entry(entry);
+  kfp::Entry entry1;
+  entry1["title"] = "polo";
+  entry1["username"] = "bob@gmail.com";
+  entry1["url"] = "netflix.com";
+  entry1["path"] = "of life";
+  entry1["password"] = "qwerty;;;,,,, sdf";
+  entry1["notes"] = "netflix is awesome";
+  key.add_entry(entry1);
+  kfp::Entry entry2;
+  entry2["title"] = "hoho";
+  entry2["username"] = "bob@gmail.com";
+  entry2["url"] = "netflix.com";
+  entry2["path"] = "of life";
+  entry2["password"] = "qwerty;;;,,,, sdf";
+  entry2["notes"] = "netflix is awesome";
+  key.add_entry(entry2);
 
   std::vector<kfp::Entry> all_entries = key.get_db();
   ASSERT_EQ(all_entries.size(), 2);
 
-  key.delete_entry("polo");
+  key.delete_entry(entry2);
 
   all_entries = key.get_db();
   ASSERT_EQ(all_entries.size(), 1);
