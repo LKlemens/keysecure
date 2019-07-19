@@ -20,14 +20,14 @@ namespace kfp {
  *######################################################################*/
 
 Keysecure::Keysecure(std::string key_database, std::string config,
-                     const char *pass)
+                     std::string pass)
     : key_database(key_database),
       config(config),
       keys(get_keys()),
-      password(pass) {
+      password(pass.begin(), pass.end()) {
   std::ifstream file(key_database);
 
-  std::cout << "invoke ctor " << password << std::endl;
+  std::cout << "invoke ctor " << std::endl;
   all_entries.reserve(30);
 
   if (!file.good()) {
@@ -113,7 +113,7 @@ const StringSeq Keysecure::get_keys() const {
 }
 
 void Keysecure::encrypt() {
-  std::cout << "encrypt fun pass: " << password << std::endl;
+  std::cout << "encrypt fun pass: " << std::endl;
   std::cout << "encrypt file ???????????????????????????????" << std::endl;
 
   std::string netstring_data = to_netstring(all_entries);
@@ -198,14 +198,13 @@ StringSeq read_netstring_line(std::string line, std::string delimiter) {
 }
 
 const Botan::secure_vector<uint8_t> encrypt_decrypt(
-    const std::vector<uint8_t> &input, const std::string &password,
+    const std::vector<uint8_t> &input,
+    const Botan::secure_vector<uint8_t> &password,
     Botan::Cipher_Dir direction) {
   std::string mode = "ChaCha20Poly1305";
 
-  Botan::secure_vector<uint8_t> secret(password.begin(), password.end());
-
   Botan::KDF *key_p = Botan::get_kdf("KDF2(SHA-512)");
-  auto key_hex = key_p->derive_key(32, secret);
+  auto key_hex = key_p->derive_key(32, password);
 
   const std::string iv_hex = "FFFFFFFFFFFFFFFFFFFFFFFF";
   const std::string ad_hex = "000fffff";

@@ -16,18 +16,18 @@ using StringSeq = std::vector<std::string>;
 using Entry = std::map<std::string,
                        std::string>; /**< key : value , e.g. password : 12345 */
 
-/** Class Keysecure represents keyring, with paramount
+/** Class Keysecure represents keyring with paramount
  * functionalities.
  */
 class Keysecure {
  public:
-  /** Constructor a keyring
+  /** Constructor a keyring.
    *
    * @param[in] key_database path to database
    * @param[in] config path to config, config define keys which will be used
    * @param[in] password pass to database
    */
-  Keysecure(std::string key_database, std::string config, const char *password);
+  Keysecure(std::string key_database, std::string config, std::string password);
 
   /** Convert output from encrypt_decrypt function to vector of entries.
    *
@@ -65,8 +65,8 @@ class Keysecure {
   const std::string key_database;
   const std::string config;
   const StringSeq keys;
-  const std::string password;
-  std::vector<Entry> all_entries; /**< holds descrypted database*/
+  const Botan::secure_vector<uint8_t> password;
+  std::vector<Entry> all_entries; /**< holds decrypted database*/
 
   /** Medhod checks if entry match up with definied keys
    */
@@ -109,11 +109,12 @@ StringSeq read_netstring_line(std::string line, std::string delimiter = ":");
  *
  * @param[in] input data to encrypt/decrypt
  * @param[in] password password for encrypt/decrypt
- *
+ * @param[in] direction Botan::Cipher_Dir definied encrypt/decrypt direction
+ * @return vector of uint8 which has encrypted/decrypted data
  */
 const Botan::secure_vector<uint8_t> encrypt_decrypt(
-    const std::vector<uint8_t> &input, const std::string &rassword,
-    Botan::Cipher_Dir direction);
+    const std::vector<uint8_t> &input,
+    const Botan::secure_vector<uint8_t> &password, Botan::Cipher_Dir direction);
 
 class InvalidEntry : public std::exception {
   const char *what() const throw() {
