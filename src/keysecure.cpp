@@ -40,8 +40,8 @@ Keysecure::Keysecure(std::string key_database, std::string config,
 }
 
 std::vector<Entry> Keysecure::to_vector_of_entries(
-    const Botan::secure_vector<uint8_t> sec_vec) {
-  std::string s(sec_vec.begin(), sec_vec.end());
+    const Botan::secure_vector<uint8_t> secure_vec) {
+  std::string s(secure_vec.begin(), secure_vec.end());
   auto passwrods_lines = cut_line(s, "\n");
   std::cout << "pass in getdb" << std::endl;
   std::cout << s << std::endl;
@@ -65,21 +65,6 @@ std::vector<Entry> Keysecure::to_vector_of_entries(
 }
 
 std::vector<Entry> Keysecure::get_db() { return all_entries; }
-
-std::string Keysecure::compress_db() {
-  std::string pass_str;
-  std::string entrystr;
-  for (auto entires : all_entries) {
-    for (auto key : entires) {
-      entrystr = key.first + "=" + key.second;
-      pass_str += std::to_string(entrystr.length()) + ":" + entrystr + ",";
-    }
-    if (entires != *all_entries.rbegin()) {
-      pass_str += '\n';
-    }
-  }
-  return pass_str;
-}
 
 void Keysecure::add_entry(Entry entry) throw() {
   check_entry(entry);
@@ -127,13 +112,31 @@ const StringSeq Keysecure::get_keys() const {
   return keys;
 }
 
-Entry Keysecure::read_config() const {
-  Entry empty_entry;
-  for (auto key : keys) {
-    std::cout << key << std::endl;
-    empty_entry[key] = "";
-  }
-  return empty_entry;
+void Keysecure::encrypt() {
+  std::cout << "encrypt fun pass: " << password << std::endl;
+  std::cout << "encrypt file ???????????????????????????????" << std::endl;
+
+  std::string netstring_data = to_netstring(all_entries);
+  const std::vector<uint8_t> input(netstring_data.begin(),
+                                   netstring_data.end());
+  std::cout << std::endl;
+  auto out = encrypt_decrypt(input, password, Botan::Cipher_Dir::ENCRYPTION);
+  std::ofstream outFile(key_database);
+  for (auto x : out) outFile << x;
+}
+
+std::vector<Entry> Keysecure::decrypt() {
+  std::ifstream t(key_database);
+  std::string str((std::istreambuf_iterator<char>(t)),
+                  std::istreambuf_iterator<char>());
+
+  std::cout << "decrypt file ???????????????????????????????" << std::endl;
+
+  const std::vector<uint8_t> input(str.begin(), str.end());
+  auto data_u8 =
+      encrypt_decrypt(input, password, Botan::Cipher_Dir::DECRYPTION);
+
+  return to_vector_of_entries(data_u8);
 }
 
 /*######################################################################
@@ -142,17 +145,19 @@ Entry Keysecure::read_config() const {
  *
  *######################################################################*/
 
-std::string get_password() {
-  std::string pass;
-// TODO: Get rid of preprocessor directives
-#ifdef TEST
-  pass = "123456";
-#else
-  std::cout << "Provide password: ";
-  std::cin >> pass;
-#endif
-  std::cout << std::endl;
-  return pass;
+std::string to_netstring(std::vector<Entry> entries) {
+  std::string pass_str;
+  std::string entrystr;
+  for (auto entires : entries) {
+    for (auto key : entires) {
+      entrystr = key.first + "=" + key.second;
+      pass_str += std::to_string(entrystr.length()) + ":" + entrystr + ",";
+    }
+    if (entires != *entries.rbegin()) {
+      pass_str += '\n';
+    }
+  }
+  return pass_str;
 }
 
 StringSeq cut_line(std::string line, const std::string &delimiter) {
@@ -193,11 +198,11 @@ StringSeq read_netstring_line(std::string line, std::string delimiter) {
 }
 
 const Botan::secure_vector<uint8_t> encrypt_decrypt(
-    const std::vector<uint8_t> &input, const std::string &key_str,
+    const std::vector<uint8_t> &input, const std::string &password,
     Botan::Cipher_Dir direction) {
   std::string mode = "ChaCha20Poly1305";
 
-  Botan::secure_vector<uint8_t> secret(key_str.begin(), key_str.end());
+  Botan::secure_vector<uint8_t> secret(password.begin(), password.end());
 
   Botan::KDF *key_p = Botan::get_kdf("KDF2(SHA-512)");
   auto key_hex = key_p->derive_key(32, secret);
@@ -231,37 +236,6 @@ const Botan::secure_vector<uint8_t> encrypt_decrypt(
   processor->finish(result);
 
   return result;
-}
-
-void Keysecure::encrypt() {
-  /* Open and truncate file to zero length or create ciphertext file for writing
-   */
-  std::cout << "encrypt fun pass: " << password << std::endl;
-  std::cout << "encrypt file ???????????????????????????????" << std::endl;
-
-  std::string netstring_data = compress_db();
-  const std::vector<uint8_t> input(netstring_data.begin(),
-                                   netstring_data.end());
-  std::cout << std::endl;
-  auto out = encrypt_decrypt(input, password, Botan::Cipher_Dir::ENCRYPTION);
-  std::ofstream outFile(key_database);
-  for (auto x : out) outFile << x;
-}
-
-std::vector<Entry> Keysecure::decrypt() {
-  /* Open the encrypted file for reading in binary ("rb" mode) */
-  std::ifstream t(key_database);
-  std::string str((std::istreambuf_iterator<char>(t)),
-                  std::istreambuf_iterator<char>());
-
-  std::cout << "decrypt file ???????????????????????????????" << std::endl;
-  /* Decrypt the given file */
-
-  const std::vector<uint8_t> input(str.begin(), str.end());
-  auto data_u8 =
-      encrypt_decrypt(input, password, Botan::Cipher_Dir::DECRYPTION);
-
-  return to_vector_of_entries(data_u8);
 }
 
 }  // namespace kfp

@@ -13,37 +13,107 @@
 
 namespace kfp {
 using StringSeq = std::vector<std::string>;
-using Entry =
-    std::map<std::string, std::string>;  // type : value , e.g. password : 12345
+using Entry = std::map<std::string,
+                       std::string>; /**< key : value , e.g. password : 12345 */
 
+/** Class Keysecure represents keyring, with paramount
+ * functionalities.
+ */
 class Keysecure {
  public:
+  /** Constructor a keyring
+   *
+   * @param[in] key_database path to database
+   * @param[in] config path to config, config define keys which will be used
+   * @param[in] password pass to database
+   */
   Keysecure(std::string key_database, std::string config, const char *password);
+
+  /** Convert output from encrypt_decrypt function to vector of entries.
+   *
+   * @param[in] secure_vec vector of uint8 which includes entire decrypted
+   * database
+   * @return readable vector of entries
+   */
   std::vector<Entry> to_vector_of_entries(
-      const Botan::secure_vector<uint8_t> sec_vec);
+      const Botan::secure_vector<uint8_t> secure_vec);
+
+  /** Return copy of vector of entries
+   * @return copy of vector of entries
+   */
   std::vector<Entry> get_db();
+
+  /** Add entry to vector of entries
+   */
   void add_entry(Entry entry) throw();
+
+  /** Delete entry from vector of entries
+   * @return error code, 0 - successful , 1 - failed
+   */
   int delete_entry(Entry dentry);
+
+  /** Decrypt file with data and save it to readable vector of entires
+   * @return vector of entries with data from database
+   */
   std::vector<Entry> decrypt();
+
+  /** Enrypt data from all_entries in netstring encoding
+   */
   void encrypt();
-  std::vector<Entry> all_entries;
-  std::string compress_db();
 
  private:
   const std::string key_database;
   const std::string config;
   const StringSeq keys;
   const std::string password;
+  std::vector<Entry> all_entries; /**< holds descrypted database*/
 
+  /** Medhod checks if entry match up with definied keys
+   */
   void check_entry(Entry values) throw();
+
+  /** Create database file if does not exist
+   */
   void create_db() const;
-  Entry read_config() const;
+
+  /** Get definied keys from config file
+   * @return vector of keys
+   */
   const StringSeq get_keys() const;
 };
 
-std::string get_password();
+/** Convert vector of entries to netstring encoding
+ *
+ * @param[in] vector of entires
+ * @return netstring
+ */
+std::string to_netstring(std::vector<Entry> entries);
+
+/** Cut line to vector of string by delimiter
+ *
+ * @param[in] line string line
+ * @param[in] delimiter, default value is ","
+ * @return vector of strings split by delimiter
+ */
 StringSeq cut_line(std::string line, const std::string &delimiter = ",");
+
+/** Read netstring line and convert it to sequence of strings
+ *
+ * @param[in] line string line
+ * @param[in] delimiter, default value is ":"
+ * @return vector of string (entries)
+ */
 StringSeq read_netstring_line(std::string line, std::string delimiter = ":");
+
+/** Encrypt/Decrypt by ChaCha20Poly1305 algorithm
+ *
+ * @param[in] input data to encrypt/decrypt
+ * @param[in] password password for encrypt/decrypt
+ *
+ */
+const Botan::secure_vector<uint8_t> encrypt_decrypt(
+    const std::vector<uint8_t> &input, const std::string &rassword,
+    Botan::Cipher_Dir direction);
 
 class InvalidEntry : public std::exception {
   const char *what() const throw() {
