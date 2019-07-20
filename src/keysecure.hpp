@@ -33,53 +33,59 @@ class Keysecure {
    *
    * @param[in] secure_vec vector of uint8 which includes entire decrypted
    * database
+   *
    * @return readable vector of entries
    */
   std::vector<Entry> to_vector_of_entries(
-      const Botan::secure_vector<uint8_t> secure_vec);
+      const Botan::secure_vector<uint8_t> secure_vec) const;
 
   /** Return copy of vector of entries
+   *
    * @return copy of vector of entries
    */
-  std::vector<Entry> get_db();
+  std::vector<Entry> get_db() const;
 
   /** Add entry to vector of entries
    */
   void add_entry(Entry entry) throw();
 
   /** Delete entry from vector of entries
+   *
    * @return error code, 0 - successful , 1 - failed
    */
   int delete_entry(Entry dentry);
 
   /** Decrypt file with data and save it to readable vector of entires
-   * @return vector of entries with data from database
+   *
+   * @return vector of entries with decrypted data from database
    */
-  std::vector<Entry> decrypt();
+  std::vector<Entry> decrypt() const;
 
   /** Enrypt data from all_entries in netstring encoding
+   *
+   * param[in] all_entries vector of entires to encrypt
    */
-  void encrypt();
+  void encrypt(std::vector<Entry> all_entries);
 
  private:
   const std::string key_database;
-  const std::string config;
   const StringSeq keys;
   const Botan::secure_vector<uint8_t> password;
-  std::vector<Entry> all_entries; /**< holds decrypted database*/
 
   /** Medhod checks if entry match up with definied keys
    */
-  void check_entry(Entry values) throw();
+  void check_entry(Entry values) const throw();
 
   /** Create database file if does not exist
    */
   void create_db() const;
 
   /** Get definied keys from config file
+   *
+   * @param[in] config path to config with definied keys
    * @return vector of keys
    */
-  const StringSeq get_keys() const;
+  const StringSeq get_keys(std::string config) const;
 };
 
 /** Convert vector of entries to netstring encoding

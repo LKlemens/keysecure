@@ -108,6 +108,6 @@ TEST(TestKeysecure, delete_entry) {
 
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
-  // ::testing::GTEST_FLAG(filter) = "*entry*";
+  // ::testing::GTEST_FLAG(filter) = "*dd_new_entr*";
   return RUN_ALL_TESTS();
 }

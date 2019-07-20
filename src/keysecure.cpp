@@ -22,25 +22,21 @@ namespace kfp {
 Keysecure::Keysecure(std::string key_database, std::string config,
                      std::string pass)
     : key_database(key_database),
-      config(config),
-      keys(get_keys()),
+      keys(get_keys(config)),
       password(pass.begin(), pass.end()) {
   std::ifstream file(key_database);
 
   std::cout << "invoke ctor " << std::endl;
-  all_entries.reserve(30);
 
   if (!file.good()) {
     create_db();
-  } else {
-    all_entries = decrypt();
   }
 
   file.close();
 }
 
 std::vector<Entry> Keysecure::to_vector_of_entries(
-    const Botan::secure_vector<uint8_t> secure_vec) {
+    const Botan::secure_vector<uint8_t> secure_vec) const {
   std::string s(secure_vec.begin(), secure_vec.end());
   auto passwrods_lines = cut_line(s, "\n");
   std::cout << "pass in getdb" << std::endl;
@@ -64,15 +60,17 @@ std::vector<Entry> Keysecure::to_vector_of_entries(
   return entries;
 }
 
-std::vector<Entry> Keysecure::get_db() { return all_entries; }
+std::vector<Entry> Keysecure::get_db() const { return decrypt(); }
 
 void Keysecure::add_entry(Entry entry) throw() {
   check_entry(entry);
+  auto all_entries = decrypt();
   all_entries.push_back(entry);
-  encrypt();
+  encrypt(all_entries);
 }
 
 int Keysecure::delete_entry(Entry dentry) {
+  auto all_entries = decrypt();
   std::cout << "size before entry" << std::endl;
   std::cout << all_entries.size() << std::endl;
   int code = 1;
@@ -85,11 +83,11 @@ int Keysecure::delete_entry(Entry dentry) {
   }
   std::cout << "size before after" << std::endl;
   std::cout << all_entries.size() << std::endl;
-  encrypt();
+  encrypt(all_entries);
   return code;
 }
 
-void Keysecure::check_entry(Entry entry) throw() {
+void Keysecure::check_entry(Entry entry) const throw() {
   for (auto m : entry) {
     if (std::find(keys.begin(), keys.end(), m.first) == keys.end()) {
       throw InvalidEntry();
@@ -102,7 +100,7 @@ void Keysecure::create_db() const {
   file.close();
 }
 
-const StringSeq Keysecure::get_keys() const {
+const StringSeq Keysecure::get_keys(std::string config) const {
   std::ifstream file(config);
 
   std::string line;
@@ -112,7 +110,7 @@ const StringSeq Keysecure::get_keys() const {
   return keys;
 }
 
-void Keysecure::encrypt() {
+void Keysecure::encrypt(std::vector<Entry> all_entries) {
   std::cout << "encrypt fun pass: " << std::endl;
   std::cout << "encrypt file ???????????????????????????????" << std::endl;
 
@@ -120,15 +118,19 @@ void Keysecure::encrypt() {
   const std::vector<uint8_t> input(netstring_data.begin(),
                                    netstring_data.end());
   std::cout << std::endl;
-  auto out = encrypt_decrypt(input, password, Botan::Cipher_Dir::ENCRYPTION);
+  auto encrypted_entries_output =
+      encrypt_decrypt(input, password, Botan::Cipher_Dir::ENCRYPTION);
   std::ofstream outFile(key_database);
-  for (auto x : out) outFile << x;
+  for (auto x : encrypted_entries_output) outFile << x;
 }
 
-std::vector<Entry> Keysecure::decrypt() {
+std::vector<Entry> Keysecure::decrypt() const {
   std::ifstream t(key_database);
   std::string str((std::istreambuf_iterator<char>(t)),
                   std::istreambuf_iterator<char>());
+  if (str == "") {
+    return std::vector<Entry>();
+  }
 
   std::cout << "decrypt file ???????????????????????????????" << std::endl;
 
@@ -148,12 +150,12 @@ std::vector<Entry> Keysecure::decrypt() {
 std::string to_netstring(std::vector<Entry> entries) {
   std::string pass_str;
   std::string entrystr;
-  for (auto entires : entries) {
-    for (auto key : entires) {
+  for (auto entry : entries) {
+    for (auto key : entry) {
       entrystr = key.first + "=" + key.second;
       pass_str += std::to_string(entrystr.length()) + ":" + entrystr + ",";
     }
-    if (entires != *entries.rbegin()) {
+    if (entry != *entries.rbegin()) {
       pass_str += '\n';
     }
   }
