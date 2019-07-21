@@ -26,8 +26,6 @@ Keysecure::Keysecure(std::string database_path, std::string config,
       password(pass.begin(), pass.end()) {
   std::ifstream file(database_path);
 
-  std::cout << "invoke ctor " << std::endl;
-
   if (!file.good()) {
     create_db();
   }
@@ -39,9 +37,6 @@ std::vector<Entry> Keysecure::to_vector_of_entries(
     const Botan::secure_vector<uint8_t> secure_vec) const {
   std::string s(secure_vec.begin(), secure_vec.end());
   auto passwrods_lines = cut_line(s, "\n");
-  std::cout << "pass in getdb" << std::endl;
-  std::cout << s << std::endl;
-  std::cout << "pass in getdb" << std::endl;
   std::vector<Entry> entries;
   for (auto line : passwrods_lines) {
     Entry entry;
@@ -54,9 +49,6 @@ std::vector<Entry> Keysecure::to_vector_of_entries(
       entries.push_back(entry);
     }
   }
-  std::cout << "entries" << std::endl;
-  for (auto x : entries) std::cout << x["title"] << std::endl;
-  std::cout << "entries" << std::endl;
   return entries;
 }
 
@@ -71,18 +63,13 @@ void Keysecure::add_entry(Entry entry) throw() {
 
 int Keysecure::delete_entry(Entry dentry) {
   auto all_entries = decrypt();
-  std::cout << "size before entry" << std::endl;
-  std::cout << all_entries.size() << std::endl;
   int code = 1;
   for (std::size_t i = 0; i <= all_entries.size(); ++i) {
     if (all_entries[i] == dentry) {
-      std::cout << "in for value " << all_entries[i]["title"] << std::endl;
       all_entries.erase(all_entries.begin() + i);
       code = 0;
     }
   }
-  std::cout << "size before after" << std::endl;
-  std::cout << all_entries.size() << std::endl;
   encrypt(all_entries);
   return code;
 }
@@ -111,13 +98,10 @@ const StringSeq Keysecure::get_keys(std::string config) const {
 }
 
 void Keysecure::encrypt(std::vector<Entry> all_entries) {
-  std::cout << "encrypt fun pass: " << std::endl;
-  std::cout << "encrypt file ???????????????????????????????" << std::endl;
 
   std::string netstring_data = to_netstring(all_entries);
   const std::vector<uint8_t> input(netstring_data.begin(),
                                    netstring_data.end());
-  std::cout << std::endl;
   auto encrypted_entries_output =
       encrypt_decrypt(input, password, Botan::Cipher_Dir::ENCRYPTION);
   std::ofstream outFile(database_path);
@@ -132,7 +116,6 @@ std::vector<Entry> Keysecure::decrypt() const {
     return std::vector<Entry>();
   }
 
-  std::cout << "decrypt file ???????????????????????????????" << std::endl;
 
   const std::vector<uint8_t> input(str.begin(), str.end());
   auto data_u8 =
