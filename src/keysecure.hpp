@@ -68,7 +68,7 @@ class Keysecure {
   void encrypt(std::vector<Entry> all_entries);
 
  private:
-  const std::string key_database;
+  const std::string database_path;
   const StringSeq keys;
   const Botan::secure_vector<uint8_t> password;
 

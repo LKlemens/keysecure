@@ -19,12 +19,12 @@ namespace kfp {
  *
  *######################################################################*/
 
-Keysecure::Keysecure(std::string key_database, std::string config,
+Keysecure::Keysecure(std::string database_path, std::string config,
                      std::string pass)
-    : key_database(key_database),
+    : database_path(database_path),
       keys(get_keys(config)),
       password(pass.begin(), pass.end()) {
-  std::ifstream file(key_database);
+  std::ifstream file(database_path);
 
   std::cout << "invoke ctor " << std::endl;
 
@@ -96,7 +96,7 @@ void Keysecure::check_entry(Entry entry) const throw() {
 }
 
 void Keysecure::create_db() const {
-  std::ofstream file(key_database);
+  std::ofstream file(database_path);
   file.close();
 }
 
@@ -120,12 +120,12 @@ void Keysecure::encrypt(std::vector<Entry> all_entries) {
   std::cout << std::endl;
   auto encrypted_entries_output =
       encrypt_decrypt(input, password, Botan::Cipher_Dir::ENCRYPTION);
-  std::ofstream outFile(key_database);
+  std::ofstream outFile(database_path);
   for (auto x : encrypted_entries_output) outFile << x;
 }
 
 std::vector<Entry> Keysecure::decrypt() const {
-  std::ifstream t(key_database);
+  std::ifstream t(database_path);
   std::string str((std::istreambuf_iterator<char>(t)),
                   std::istreambuf_iterator<char>());
   if (str == "") {
