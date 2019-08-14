@@ -29,8 +29,7 @@ Docker image:
 
 TODO
 ####
-- Implement database encryption
-- Delete/Search functionality
+- add random IV
 - Refactoring
 
 
