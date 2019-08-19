@@ -49,7 +49,7 @@ TEST(TestKeysecure, add_new_entry) {
   kfp::Keysecure key(db_name, "conf", "123456");
 
   kfp::Entry entry;
-  entry["title"] = "polo";
+  entry["title"] = "po=lo";
   entry["username"] = "bob@gmail.com";
   entry["url"] = "netflix.com";
   entry["path"] = "of life";
@@ -59,12 +59,12 @@ TEST(TestKeysecure, add_new_entry) {
 
   std::vector<kfp::Entry> all_entries = key.get_db();
   kfp::Entry entry_from_file = all_entries[0];
-  ASSERT_EQ(entry["title"], "polo");
-  ASSERT_EQ(entry["username"], "bob@gmail.com");
-  ASSERT_EQ(entry["url"], "netflix.com");
-  ASSERT_EQ(entry["path"], "of life");
-  ASSERT_EQ(entry["password"], "qwerty;;;,,,, sdf");
-  ASSERT_EQ(entry["notes"], "netflix is awesome");
+  ASSERT_EQ(entry_from_file["title"], "po=lo");
+  ASSERT_EQ(entry_from_file["username"], "bob@gmail.com");
+  ASSERT_EQ(entry_from_file["url"], "netflix.com");
+  ASSERT_EQ(entry_from_file["path"], "of life");
+  ASSERT_EQ(entry_from_file["password"], "qwerty;;;,,,, sdf");
+  ASSERT_EQ(entry_from_file["notes"], "netflix is awesome");
 
   // check whether it open db properly
   kfp::Keysecure key_again(db_name, "conf", "123456");
