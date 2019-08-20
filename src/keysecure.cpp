@@ -98,8 +98,8 @@ const StringSeq Keysecure::get_keys(std::string config) const {
 
 void Keysecure::encrypt(std::vector<Entry> all_entries) {
   std::string netstring_data = to_netstring(all_entries);
-  const std::vector<uint8_t> input(netstring_data.begin(),
-                                   netstring_data.end());
+  Botan::secure_vector<uint8_t> input(netstring_data.begin(),
+                                      netstring_data.end());
   auto encrypted_entries_output =
       encrypt_decrypt(input, password, Botan::Cipher_Dir::ENCRYPTION);
   std::ofstream outFile(database_path);
@@ -116,7 +116,7 @@ std::vector<Entry> Keysecure::decrypt() const {
     return std::vector<Entry>();
   }
 
-  const std::vector<uint8_t> input(str.begin(), str.end());
+  Botan::secure_vector<uint8_t> input(str.begin(), str.end());
   auto data_u8 =
       encrypt_decrypt(input, password, Botan::Cipher_Dir::DECRYPTION);
 
@@ -131,7 +131,6 @@ std::vector<Entry> Keysecure::decrypt() const {
 
 std::string to_netstring(std::vector<Entry> entries) {
   std::string pass_str;
-  std::string entrystr;
   for (auto entry : entries) {
     for (auto key : entry) {
       pass_str += std::to_string(key.first.length()) + ":" + key.first + ",";
@@ -182,7 +181,7 @@ StringSeq read_netstring_line(std::string line, std::string delimiter) {
 }
 
 const Botan::secure_vector<uint8_t> encrypt_decrypt(
-    const std::vector<uint8_t> &input,
+    Botan::secure_vector<uint8_t> &input,
     const Botan::secure_vector<uint8_t> &password,
     Botan::Cipher_Dir direction) {
   std::string mode = "ChaCha20Poly1305";
@@ -215,10 +214,10 @@ const Botan::secure_vector<uint8_t> encrypt_decrypt(
   // Set IV
   processor->start(iv.bits_of());
 
-  Botan::secure_vector<uint8_t> result(input.begin(), input.end());
-  processor->finish(result);
+  // encrypt/decrypt input container in place
+  processor->finish(input);
 
-  return result;
+  return input;
 }
 
 }  // namespace kfp

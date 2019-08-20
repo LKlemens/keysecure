@@ -119,7 +119,7 @@ StringSeq read_netstring_line(std::string line, std::string delimiter = ":");
  * @return vector of uint8 which has encrypted/decrypted data
  */
 const Botan::secure_vector<uint8_t> encrypt_decrypt(
-    const std::vector<uint8_t> &input,
+    Botan::secure_vector<uint8_t> &input,
     const Botan::secure_vector<uint8_t> &password, Botan::Cipher_Dir direction);
 
 class InvalidEntry : public std::exception {
