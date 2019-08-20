@@ -36,7 +36,7 @@ Keysecure::Keysecure(std::string database_path, std::string config,
 std::vector<Entry> Keysecure::to_vector_of_entries(
     const Botan::secure_vector<uint8_t> secure_vec) const {
   std::string netstrings(secure_vec.begin(), secure_vec.end());
-  auto passwrods_lines = cut_line(netstrings, "\n");
+  auto passwrods_lines = read_netstring_line(netstrings);
   std::vector<Entry> entries;
   for (auto line : passwrods_lines) {
     Entry entry;
@@ -130,17 +130,19 @@ std::vector<Entry> Keysecure::decrypt() const {
  *######################################################################*/
 
 std::string to_netstring(std::vector<Entry> entries) {
-  std::string pass_str;
+  std::string entry_netstring, main_netstring;
   for (auto entry : entries) {
     for (auto key : entry) {
-      pass_str += std::to_string(key.first.length()) + ":" + key.first + ",";
-      pass_str += std::to_string(key.second.length()) + ":" + key.second + ",";
+      entry_netstring +=
+          std::to_string(key.first.length()) + ":" + key.first + ",";
+      entry_netstring +=
+          std::to_string(key.second.length()) + ":" + key.second + ",";
     }
-    if (entry != *entries.rbegin()) {
-      pass_str += '\n';
-    }
+    main_netstring +=
+        std::to_string(entry_netstring.length()) + ":" + entry_netstring + ",";
+    entry_netstring = "";
   }
-  return pass_str;
+  return main_netstring;
 }
 
 StringSeq cut_line(std::string line, const std::string &delimiter) {

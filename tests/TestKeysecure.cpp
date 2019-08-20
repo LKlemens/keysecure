@@ -51,7 +51,7 @@ TEST(TestKeysecure, add_new_entry) {
   kfp::Entry entry;
   entry["title"] = "po=lo";
   entry["username"] = "bob@gmail.com";
-  entry["url"] = "netflix.com";
+  entry["url"] = "netf\nlix.com";
   entry["path"] = "";
   entry["password"] = "qwerty;;;,,,, sdf";
   entry["notes"] = "netflix is awesome";
@@ -61,7 +61,7 @@ TEST(TestKeysecure, add_new_entry) {
   kfp::Entry entry_from_file = all_entries[0];
   ASSERT_EQ(entry_from_file["title"], "po=lo");
   ASSERT_EQ(entry_from_file["username"], "bob@gmail.com");
-  ASSERT_EQ(entry_from_file["url"], "netflix.com");
+  ASSERT_EQ(entry_from_file["url"], "netf\nlix.com");
   ASSERT_EQ(entry_from_file["path"], "");
   ASSERT_EQ(entry_from_file["password"], "qwerty;;;,,,, sdf");
   ASSERT_EQ(entry_from_file["notes"], "netflix is awesome");
