@@ -104,12 +104,14 @@ void Keysecure::encrypt(std::vector<Entry> all_entries) {
       encrypt_decrypt(input, password, Botan::Cipher_Dir::ENCRYPTION);
   std::ofstream outFile(database_path);
   for (auto x : encrypted_entries_output) outFile << x;
+  outFile.close();
 }
 
 std::vector<Entry> Keysecure::decrypt() const {
-  std::ifstream t(database_path);
-  std::string str((std::istreambuf_iterator<char>(t)),
+  std::ifstream inputFile(database_path);
+  std::string str((std::istreambuf_iterator<char>(inputFile)),
                   std::istreambuf_iterator<char>());
+  inputFile.close();
   if (str == "") {
     return std::vector<Entry>();
   }
