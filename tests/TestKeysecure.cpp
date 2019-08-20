@@ -52,7 +52,7 @@ TEST(TestKeysecure, add_new_entry) {
   entry["title"] = "po=lo";
   entry["username"] = "bob@gmail.com";
   entry["url"] = "netflix.com";
-  entry["path"] = "of life";
+  entry["path"] = "";
   entry["password"] = "qwerty;;;,,,, sdf";
   entry["notes"] = "netflix is awesome";
   key.add_entry(entry);
@@ -62,7 +62,7 @@ TEST(TestKeysecure, add_new_entry) {
   ASSERT_EQ(entry_from_file["title"], "po=lo");
   ASSERT_EQ(entry_from_file["username"], "bob@gmail.com");
   ASSERT_EQ(entry_from_file["url"], "netflix.com");
-  ASSERT_EQ(entry_from_file["path"], "of life");
+  ASSERT_EQ(entry_from_file["path"], "");
   ASSERT_EQ(entry_from_file["password"], "qwerty;;;,,,, sdf");
   ASSERT_EQ(entry_from_file["notes"], "netflix is awesome");
 

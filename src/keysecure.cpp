@@ -41,9 +41,8 @@ std::vector<Entry> Keysecure::to_vector_of_entries(
   for (auto line : passwrods_lines) {
     Entry entry;
     auto fields = read_netstring_line(line);
-    for (auto field : fields) {
-      auto key_value = cut_line(field, "=");
-      entry[key_value[0]] = key_value[1];
+    for (std::size_t i = 0; i < fields.size(); i = i + 2) {
+      entry[fields[i]] = fields[i + 1];
     }
     if (entry.size() == keys.size()) {
       entries.push_back(entry);
@@ -98,7 +97,6 @@ const StringSeq Keysecure::get_keys(std::string config) const {
 }
 
 void Keysecure::encrypt(std::vector<Entry> all_entries) {
-
   std::string netstring_data = to_netstring(all_entries);
   const std::vector<uint8_t> input(netstring_data.begin(),
                                    netstring_data.end());
@@ -115,7 +113,6 @@ std::vector<Entry> Keysecure::decrypt() const {
   if (str == "") {
     return std::vector<Entry>();
   }
-
 
   const std::vector<uint8_t> input(str.begin(), str.end());
   auto data_u8 =
@@ -135,8 +132,8 @@ std::string to_netstring(std::vector<Entry> entries) {
   std::string entrystr;
   for (auto entry : entries) {
     for (auto key : entry) {
-      entrystr = key.first + "=" + key.second;
-      pass_str += std::to_string(entrystr.length()) + ":" + entrystr + ",";
+      pass_str += std::to_string(key.first.length()) + ":" + key.first + ",";
+      pass_str += std::to_string(key.second.length()) + ":" + key.second + ",";
     }
     if (entry != *entries.rbegin()) {
       pass_str += '\n';
