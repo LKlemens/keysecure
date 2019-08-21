@@ -44,9 +44,7 @@ std::vector<Entry> Keysecure::to_vector_of_entries(
     for (std::size_t i = 0; i < fields.size(); i = i + 2) {
       entry[fields[i]] = fields[i + 1];
     }
-    if (entry.size() == keys.size()) {
-      entries.push_back(entry);
-    }
+    entries.push_back(entry);
   }
   return entries;
 }
