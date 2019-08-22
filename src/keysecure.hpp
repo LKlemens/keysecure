@@ -3,7 +3,6 @@
 #include <botan/aead.h>
 #include <botan/hex.h>
 #include <botan/kdf.h>
-#include <openssl/evp.h>
 #include <stdio.h>
 #include <exception>
 #include <fstream>
