@@ -42,7 +42,9 @@ std::vector<Entry> Keysecure::to_vector_of_entries(
     Entry entry;
     auto fields = read_netstring_line(line);
     for (std::size_t i = 0; i < fields.size(); i = i + 2) {
-      entry[fields[i]] = fields[i + 1];
+      auto key = fields[i];
+      auto value = fields[i + 1];
+      entry[key] = value;
     }
     entries.push_back(entry);
   }
