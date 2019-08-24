@@ -10,15 +10,15 @@ RUN git clone https://github.com/pybind/pybind11.git && \
 	cd build && \
 	cmake .. && \
 	make check -j 4 && \
-  python3 -m pip install pybind11 && \
-	ln -s /home/keysecure/pybind11/include/pybind11 /usr/local/include
+	python3 -m pip install pybind11 && \
+	rm -r /home/keysecure/pybind11
 
 RUN  git clone https://github.com/randombit/botan.git && \
 	cd botan && \
 	./configure.py && \
 	make && \
 	make install && \
-	ln -s /home/keysecure/botan/build/include/botan /usr/local/include
+	rm -r /home/keysecure/botan
 
 
 COPY . /home/keysecure

@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -g -Wall -Wextra -std=c++11 -lbotan-2 -I/usr/include/botan-2
+CXXFLAGS := -g -Wall -Wextra -std=c++11 -lbotan-2 -I/usr/local/include/botan-2
 PY_LIBS != python3 -m pybind11  --includes
 
 all: keysecure.o libkeysecure.a keysecure.cpython-37m-x86_64-linux-gnu.so
@@ -12,7 +12,7 @@ keysecure.o: src/keysecure.cpp src/keysecure.hpp
 	${CXX} ${CXXFLAGS} -c $<
 
 keysecure.cpython-37m-x86_64-linux-gnu.so: src/python_module.cpp src/keysecure.cpp src/keysecure.hpp
-	${CXX} ${CXXFLAGS} -shared -fPIC ${PY_LIBS} src/keysecure.cpp -lbotan-2 -I/usr/include/botan-2 $< -o keysecure`python3-config --extension-suffix`
+	${CXX} ${CXXFLAGS} -shared -fPIC ${PY_LIBS} src/keysecure.cpp $< -o keysecure`python3-config --extension-suffix`
 
 
 clean:

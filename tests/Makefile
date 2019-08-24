@@ -1,6 +1,6 @@
 CXX = g++
-CXXFLAGS =  -g -Wall -Wextra  -std=c++11 -c -I/usr/include/botan-2
-LINKING_FLAGS = -L. -lkeysecure -lgtest -lpthread -lbotan-2 -I/usr/include/botan-2
+CXXFLAGS =  -g -Wall -Wextra  -std=c++11 -c -I/usr/local/include/botan-2
+LINKING_FLAGS = -L. -lkeysecure -lgtest -lpthread -lbotan-2 -I/usr/local/include/botan-2
 EXECUTABLE = test
 
 all: ${EXECUTABLE}
