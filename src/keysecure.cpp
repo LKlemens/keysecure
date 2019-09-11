@@ -36,9 +36,9 @@ Keysecure::Keysecure(std::string database_path, std::string config,
 std::vector<Entry> Keysecure::to_vector_of_entries(
     const Botan::secure_vector<uint8_t> secure_vec) const {
   std::string netstrings(secure_vec.begin(), secure_vec.end());
-  auto passwrods_lines = read_netstring_line(netstrings);
+  auto passwords_lines = read_netstring_line(netstrings);
   std::vector<Entry> entries;
-  for (auto line : passwrods_lines) {
+  for (auto line : passwords_lines) {
     Entry entry;
     auto fields = read_netstring_line(line);
     for (std::size_t i = 0; i < fields.size(); i = i + 2) {
